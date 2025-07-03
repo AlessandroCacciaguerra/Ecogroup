@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: cGgF6I9WczWDhYM2EdeeNv96rYlL
+      MYSQL_DATABASE: eco_group
+    ports:
+      - "3307:3306"
+  
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+  
+  backend:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      DB_HOST: 127.0.0.1
+      DB_USER: root
+      DB_PASSWORD: cGgF6I9WczWDhYM2EdeeNv96rYlL
+      DB_NAME: eco_group
+    network_mode: "host"
+    volumes:
+      - /opt/lampp:/opt/lampp
+      - ./ecogroup/:/www/ecogroup/
+      - ./php:/var/www/html
+    working_dir: /www/ecogroup
+    command: >
+      sh -c "/opt/lampp/htdocs/EcogroupWeb-AlessandroCacciaguerra/db/createdb.sh && npm run start && redis-server"
